@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista de Productos</title>
+</head>
+<body>
+    <h1>Lista de Productos</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Descripción</th>
+            <th>Foto</th>
+            <th>Precio</th>
+            <th>Creado</th>
+            <th>Actualizado</th>
+            <th>Acción</th> 
+        </tr>
+        {% for item in items %}
+            <tr>
+                <td>{{ item['id'] }}</td>
+                <td>{{ item['title'] }}</td>
+                <td>{{ item['description'] }}</td>
+                <td>
+                    <img src="{{ item['photo'] }}" alt="{{ item['title'] }}" width="100">
+                </td>
+                <td>{{ item['price'] }}</td>
+                <td>{{ item['created'] }}</td>
+                <td>{{ item['updated'] }}</td>
+                <!-- Agrega un enlace para ver detalles del producto -->
+                <td>
+                    <p>{{ item['title'] }}</p>
+                    <a href="{{ url_for('read_item', product_id=item['id']) }}">Ver Detalles</a>
+                    <a href="{{ url_for('delete_item', item_id=item['id']) }}">Eliminar Producto</a>
+                    <a href="{{ url_for('update_item', item_id=item['id']) }}">Update</a>
+                </td>                
+            </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <a href="{{ url_for('home') }}">Volver al Inicio</a>
+</body>
+</html>
+

@@ -8,13 +8,16 @@
 <body>
     <nav>
         <section class="flex_content">
-            <strong class="logo"><em class="stroke">And</em>res<em>.</em></strong>
-            <a href="/product/create">Registro Productos</a>
-            <a href="/items/list">Lista Productos</a>
+            <strong class="logo"><em class="stroke">Andres</strong>
+            
+            <a href="{{ url_for('items_list') }}">Ver Lista de Productos</a>
+            <a href="{{ url_for('create_item') }}">Crear Nuevo Producto</a><br>      
+            <a href="{{ url_for('ver_layout') }}">Ver layout</a><br>         
+
         </section>
     </nav>
     <div class="overlap">
-        <h1><span class="highlightme">Projecte Flask M12</span></h1>
+        <h1><span class="highlightme">Projecte M12</span></h1>
         <form method="GET" action="/hello">
             <button type="submit" class="btn">Saluda!</button>
             <img class="img-port" src="../static/img/flask-intro.jpg">

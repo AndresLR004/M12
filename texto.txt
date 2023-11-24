@@ -1,3 +1,9 @@
+LIST
+@app.route('/products/list')
+def items_list():
+    return render_template('product/list.html')
+
+
 <!DOCTYPE html>
 <html lang="ca">
 
@@ -31,3 +37,11 @@
 </body>
 
 </html>
+
+@app.route('/products/list', methods=['GET'])
+def list_items():
+    with get_db_connection() as con:
+        res = con.execute("SELECT id, nom, unitats FROM items")
+        items = res.fetchall()
+
+    return render_template('product/list.html', items=items)
