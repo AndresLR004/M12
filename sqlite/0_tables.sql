@@ -9,7 +9,7 @@ CREATE TABLE statuses (
 	name TEXT UNIQUE,
 	slug TEXT UNIQUE
 );
-
+--
 CREATE TABLE users (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	name TEXT NOT NULL UNIQUE,
@@ -37,6 +37,24 @@ CREATE TABLE products (
 	FOREIGN KEY (status_id) REFERENCES statuses(id),
 	FOREIGN KEY (seller_id) REFERENCES users(id)
 );
+
+CREATE TABLE orders (
+    id INTEGER PRIMARY KEY,
+    product_id INTEGER NOT NULL,
+    buyer_id INTEGER NOT NULL,
+    offer REAL NOT NULL,
+    created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    FOREIGN KEY (buyer_id) REFERENCES users(id)
+);
+
+-- Crear la taula confirmed_orders
+CREATE TABLE confirmed_orders (
+    order_id INTEGER PRIMARY KEY,
+    created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id)
+);
+
 
 CREATE TABLE blocked_users (
 	user_id INTEGER PRIMARY KEY,
