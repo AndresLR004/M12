@@ -1,10 +1,11 @@
 from . import api_bp
 from .errors import not_found, bad_request
 from .. import db_manager as db
-from ..models import Order, ConfirmedOrder
-from ..helper_json import json_request, json_response
-from flask import current_app, jsonify
-from .helper_auth import token_auth, basic_auth
+from ..models import Order, ConfirmedOrder, Product
+from ..helper_json import json_request, json_response, json_error_response
+from flask import current_app, jsonify, request, g
+from .helper_auth import token_auth
+
 
 @api_bp.route('/orders/<int:order_id>/confirmed', methods=['POST'])
 @token_auth.login_required
@@ -85,3 +86,15 @@ def cancel_confirmed_order(order_id):
         return not_found('ConfirmedOrder not found')
   
     
+    order = Order.get(order_id)
+    if order:
+        if order.buyer_id != g.current_user.id:
+            return json_error_response(401, "You are not authorized to cancel this order.")
+        if order.confirmed_order:
+            return json_error_response(400, "Cannot cancel a confirmed order.")
+        order.delete()
+        current_app.logger.debug("DELETE order: {}".format(order_id))
+        return json_response(order.to_dict())
+    else:
+        current_app.logger.debug("Order {} not found".format(order_id))
+        return not_found("Order not found")  
