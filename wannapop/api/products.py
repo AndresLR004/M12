@@ -4,6 +4,7 @@ from .. import db_manager as db
 from ..models import Product, Category, Order
 from ..helper_json import json_request, json_response
 from flask import current_app, jsonify, request
+from .helper_auth import token_auth, basic_auth
 
 #List
 @api_bp.route('/products', methods=['GET'])
@@ -57,15 +58,29 @@ def get_api_product_show(id):
     
 # Update
 @api_bp.route('/products/<int:id>', methods=['PUT'])
+@token_auth.login_required
 def update_api_product(id):
     product = Product.get(id)
     if product:
         try:
             data = json_request(['title', 'description', 'photo', 'price', 'category_id'], False)
+            
         except Exception as e:
             current_app.logger.debug(e)
             return bad_request(str(e))
         else:
+
+            
+
+            if token_auth.current_user().id != product.seller_id:
+                    current_app.logger.debug("entrar al if")
+                    return jsonify(
+                        {
+                            'error': 'Unauthorized', 
+                            'message': 'You are not authorized to edit this product', 
+                            'success': False
+                        }), 401
+            
             product.update(**data)
             current_app.logger.debug("UPDATED item: {}".format(product.to_dict()))
             return jsonify(

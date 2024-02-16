@@ -60,6 +60,14 @@ class User(UserMixin, db.Model, BaseMixin, SerializableMixin):
         self.save()
         return self.token
 
+    @staticmethod
+    def check_token(token):
+        user = User.get_filtered_by(token=token)
+        if user is None or user.token_expiration.replace(
+                tzinfo=timezone.utc) < datetime.now(timezone.utc):
+            return None
+        return user
+    
     def revoke_token(self):
         self.token_expiration = datetime.now(timezone.utc) - timedelta(
             seconds=1)

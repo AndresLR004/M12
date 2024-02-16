@@ -4,59 +4,84 @@ from .. import db_manager as db
 from ..models import Order, ConfirmedOrder
 from ..helper_json import json_request, json_response
 from flask import current_app, jsonify
+from .helper_auth import token_auth, basic_auth
 
 @api_bp.route('/orders/<int:order_id>/confirmed', methods=['POST'])
+@token_auth.login_required
 def accept_order(order_id):
     order = Order.query.get(order_id)
 
     if order:
+        if token_auth.current_user().id != order.product.seller_id:
+            return jsonify(
+                {
+                    'error': 'Unauthorized', 
+                    'message': 'You are not authorized to confirm this order', 
+                    'success': False
+                }), 401
+
         if order.confirmed_order:
-            return bad_request('Order already confirmed')
+            return jsonify(
+                {
+                    'error': 'Bad Request', 
+                    'message': 'Order already confirmed',
+                    'success': False
+                }), 400
 
         confirmed_order = ConfirmedOrder(order=order)
         
         try:
             confirmed_order.save()
         except:
-            return bad_request('Error confirming the order')
+            return jsonify(
+                {
+                    'error': 'Bad Request', 
+                    'message': 'Error confirming the order', 
+                    'success': False
+                }), 400
 
         current_app.logger.debug(f"Order {order_id} confirmed successfully")
         return jsonify(
-            {   
-                'data': order_id, 
-                'success': True
-            }), 200 
-    else:
-         return jsonify(
             {
-                'error': 'Not Found', 
-                'message': 'Order not found', 
-                'success': False
-            }), 404
+                'message': f'Order {order_id} confirmed successfully', 
+                'success': True
+            }), 200
+    else:
+        return not_found('Order not found')
+
     
 @api_bp.route('/orders/<int:order_id>/confirmed', methods=['DELETE'])
+@token_auth.login_required
 def cancel_confirmed_order(order_id):
     confirmed_order = ConfirmedOrder.query.get(order_id)
 
     if confirmed_order:
-        # Elimina la entrada de confirmed_orders
+        # Verificar si el usuario autenticado es el "seller" del producto asociado
+        if token_auth.current_user().id != confirmed_order.order.product.seller_id:
+            return jsonify(
+                {
+                    'error': 'Unauthorized', 
+                    'message': 'You are not authorized to cancel this confirmed order', 
+                    'success': False
+                }), 401
+
         try:
             confirmed_order.delete()
         except:
-            return bad_request('Error canceling the confirmed order')
+            return jsonify(
+                {
+                    'error': 'Bad Request', 
+                    'message': 'Error cancelling the confirmed order', 
+                    'success': False
+                }), 400
 
-        current_app.logger.debug(f"ConfirmedOrder {order_id} canceled successfully")
+        current_app.logger.debug(f"ConfirmedOrder {order_id} cancelled successfully")
         return jsonify(
             {
-                'data': order_id, 
+                'message': f'ConfirmedOrder {order_id} cancelled successfully', 
                 'success': True
-            }), 200  
+            }), 200
     else:
-        return jsonify(
-            {
-                "data" : order_id,
-                "success": True
-            }), 200    
-    else:
-        return not_found('Order no encontrada')       
+        return not_found('ConfirmedOrder not found')
+  
     
