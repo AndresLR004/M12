@@ -65,7 +65,7 @@ class BaseMixin():
     def db_enable_debug():
         import logging
         logging.basicConfig()
-        logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+        logging.getLogger('sqlite.engine').setLevel(logging.INFO)
 
 from collections import OrderedDict
 from sqlalchemy.engine.row import Row
