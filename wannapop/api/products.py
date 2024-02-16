@@ -76,3 +76,86 @@ def update_api_product(id):
     else:
         current_app.logger.debug(f"Product {id} not found")
         return not_found("Product not found")
+
+
+
+
+
+
+##########################################
+##          ANTERIOR CODIGO             ##
+##########################################
+
+# from . import api_bp
+# from .errors import not_found, bad_request
+# from ..models import Product, Category
+# from ..helper_json import json_request, json_response
+# from flask import current_app, request
+
+# LIST
+# @api_bp.route('/products', methods=['GET'])
+# def get_products_list():
+#     search = request.args.get('search')
+#     if search:
+#         Product.db_enable_debug()
+#         my_filter = Product.nom.like('%' + search + '%')
+#         products_with_category = Product.db_query_with(Category).filter(my_filter)
+#     else:
+#         products_with_category = Product.get_all_with(Category)
+#     data = Product.to_dict_collection(products_with_category)
+#     return json_response(data)
+
+# # CREATE
+# @api_bp.route('/products', methods=['POST'])
+# def create_product():
+#     try:
+#         data = json_request(['nom', 'category_id', 'unitats'])
+#     except Exception as e:
+#         current_app.logger.debug(e)
+#         return bad_request(str(e))
+
+# # READ
+# @api_bp.route('/products/<int:product_id>', methods = ['GET'])
+# def get_product(product_id):
+#     result = Product.get_with(id, Category)
+#     if result:
+#         (product, category, discount) = result
+#         data = product.to_dict()
+#         data["store"] = category.to_dict()
+#         del data["store_id"]
+#         if (discount):
+#             data["discount"] = discount.discount
+#         return json_response(data)
+#     else:
+#         current_app.logger.debug("Product {} not found".format(product_id))
+#         return not_found("Product not found")
+
+# # UPDATE
+# @api_bp.route('/products/<int:product_id>', methods = ['PUT'])
+# def update_product(product_id):
+#     product = Product.get(id)
+#     if product:
+#         try:
+#             data = json_request(['nom', 'category_id', 'unitats'], False)
+#         except Exception as e:
+#             current_app.logger.debug(e)
+#             return bad_request(str(e))
+#         else:
+#             product.update(**data)
+#             current_app.logger.debug("UPDATED product: {}".format(product.to_dict()))
+#             return json_response(product.to_dict())
+#     else:
+#         current_app.logger.debug("Product {} not found".format(product_id))
+#         return not_found("Product not found")
+
+# # DELETE
+# @api_bp.route('/products/<int:product_id>', methods = ['DELETE'])
+# def delete_product(product_id):
+#     product = Product.get(product_id)
+#     if product:
+#         product.delete()
+#         current_app.logger.debug("DELETED product: {}".format(id))
+#         return json_response(product.to_dict())
+#     else:
+#         current_app.logger.debug("Product {} not found".format(id))
+#         return not_found("Product not found")

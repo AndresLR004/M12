@@ -54,7 +54,9 @@ def cancel_confirmed_order(order_id):
     else:
         return jsonify(
             {
-                'error': 'Not Found', 
-                'message': 'ConfirmedOrder not found', 
-                'success': False
-            }), 404
+                "data" : order_id,
+                "success": True
+            }), 200    
+    else:
+        return not_found('Order no encontrada')       
+    

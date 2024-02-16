@@ -6,6 +6,8 @@ from sqlalchemy.orm import relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 from .mixins import BaseMixin, SerializableMixin
 from sqlalchemy.orm import relationship
+from datetime import timedelta, timezone, datetime
+import secrets
 
 class User(UserMixin, db.Model, BaseMixin, SerializableMixin):
     __tablename__ = "users"
@@ -18,6 +20,8 @@ class User(UserMixin, db.Model, BaseMixin, SerializableMixin):
     email_token = db.Column(db.String, nullable=True, server_default=None)
     created = db.Column(db.DateTime, server_default=func.now())
     updated = db.Column(db.DateTime, server_default=func.now(), onupdate=func.now())
+    token = db.Column(db.String(255))
+    token_expiration = db.Column(db.DateTime)
 
     def get_id(self):
         return self.email
@@ -46,6 +50,21 @@ class User(UserMixin, db.Model, BaseMixin, SerializableMixin):
     def is_wanner(self):
         return self.role == "wanner"
 
+    def get_token(self, expires_in=3600):
+        now = datetime.now(timezone.utc)
+        if self.token and self.token_expiration.replace(
+                tzinfo=timezone.utc) > now + timedelta(seconds=60):
+            return self.token
+        self.token = secrets.token_hex(16)
+        self.token_expiration = now + timedelta(seconds=expires_in)
+        self.save()
+        return self.token
+
+    def revoke_token(self):
+        self.token_expiration = datetime.now(timezone.utc) - timedelta(
+            seconds=1)
+        self.save()
+
     def is_action_allowed_to_product(self, action, product = None, banned = None):
         from .helper_role import _permissions, Action
 
@@ -68,6 +87,7 @@ class User(UserMixin, db.Model, BaseMixin, SerializableMixin):
         # exceptuant els seus propis, tot i que hagin estat prohibits
         if (action == Action.products_read and self.is_wanner()):
             return product and (not banned or self.id == product.seller_id)
+        
         
         # Si hem arribat fins aquí, l'usuari té permisos
         return True

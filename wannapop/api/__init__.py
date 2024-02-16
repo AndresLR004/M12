@@ -2,4 +2,5 @@ from flask import Blueprint
 
 api_bp = Blueprint('api', __name__)
 
-from . import products, categories, errors, orders
+# necessari per a que es carreguin les rutes
+from . import products, categories, errors, orders, statuses, users, token, helper_auth

@@ -1,4 +1,4 @@
-from flask import request, jsonify, abort, Response
+from flask import request, jsonify
 from werkzeug.http import HTTP_STATUS_CODES
 
 def json_request(required_fields=[], all_required=True):
