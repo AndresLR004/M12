@@ -22,6 +22,14 @@ class User(UserMixin, db.Model, BaseMixin, SerializableMixin):
     updated = db.Column(db.DateTime, server_default=func.now(), onupdate=func.now())
     token = db.Column(db.String(255))
     token_expiration = db.Column(db.DateTime)
+    
+    @staticmethod
+    def check_token(token):
+        user = User.get_filtered_by(token=token)
+        if user is None or user.token_expiration.replace(
+                tzinfo=timezone.utc) < datetime.now(timezone.utc):
+            return None
+        return user
 
     def get_id(self):
         return self.email

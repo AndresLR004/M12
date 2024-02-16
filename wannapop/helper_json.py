@@ -1,4 +1,5 @@
 from flask import request, jsonify
+from flask import current_app, jsonify, request
 from werkzeug.http import HTTP_STATUS_CODES
 
 def json_request(required_fields=[], all_required=True):
